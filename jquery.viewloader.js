@@ -1,7 +1,7 @@
 /*!
  * jQuery viewloader plugin
  *
- * Version 0.1 (24-November-2011)
+ * Version 0.2 (29-November-2011)
  * @requires jQuery 1.5 and above (for the Deferred support)
  *
  * Copyright (c) 2011 Philippe Monnet (@techarch) 	http://blog.monnet-usa.com
@@ -197,6 +197,17 @@
 								// Identify any nested view templates scripts in the source we just retrieved
 								var embeddedScriptRefs = $(jsSource).find("script");
 								if (embeddedScriptRefs.length > 0) {
+									// Rename the id of each script template since we have already added
+									// a new script block to the page body.This prevents duplicates.
+									embeddedScriptRefs.each(function() {
+										var embeddedScriptRef = $(this);
+										var embeddedScriptRefID = embeddedScriptRef.attr("id");
+										jsSource = jsSource.replace(embeddedScriptRefID, "_" + embeddedScriptRefID+"_");
+									});
+									
+									// Re-Save the updated source
+									currentScript[0].text = jsSource;
+									
 									// Recursively request dynamic synchronized loading of the nested templates								
 									currentScript.viewloader({
 										logLevel: "debug",
