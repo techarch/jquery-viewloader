@@ -1,0 +1,33 @@
+{
+  "name": "jquery-viewloader",
+  "version": "1.0.0",
+  "title": "jQuery View Loader",
+  "repository": {
+        "type": "git",
+        "url": "https://github.com/techarch/jquery-viewloader.git"
+  },
+  "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/MIT"
+        }
+  ],
+  "main": [
+  	"jquery.viewloader.js",
+  	"jquery.viewloader.min.js",
+  ],
+  "keywords": [
+  	"view",
+  	"loader",
+  	"view loader",
+  	"templates"	
+  ],
+  "description": "jQuery View Loader allows you to break up a page into multiple views using your template engine of choice, each loaded and rendered dynamically. When combined with KnockoutJS you can have each view be data-bound to a view model.",
+  "author": "Philippe Monnet <techarch@monnet-usa.com>",
+  "homepage": "https://github.com/techarch/jquery-viewloader",
+  "dependencies": {
+    "jquery": ">=1.5"
+  },
+  "devDependencies": {    
+  }
+}
