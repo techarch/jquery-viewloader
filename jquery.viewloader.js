@@ -1,7 +1,7 @@
 /*!
  * jQuery viewloader plugin
  *
- * Version 0.3 (29-November-2011)
+ * Version 1.0.0 (2-October-2013)
  * @requires jQuery 1.5 and above (for the Deferred support)
  *
  * Copyright (c) 2011 Philippe Monnet (@techarch) 	http://blog.monnet-usa.com
@@ -30,12 +30,12 @@
 		
 		// Default options
 		var defaults = {
-			logLevel: "none",						// none / debug / info / warn / error
+			logLevel: "none",				// none / debug / info / warn / error
 			viewExtension: '.view.html',	// proposed extension
-			scripts: null,							// can be an jQuery array of script items
+			scripts: null,					// can be an jQuery array of script items
 			afterEachTemplate: null,		// optional callback function to invoke after each template has been loaded
-			success: null,							// the "success" callback to invoke once all templates have been loaded
-			error: null								// the "error" callback to invoke if a failure occurs
+			success: null,					// the "success" callback to invoke once all templates have been loaded
+			error: null						// the "error" callback to invoke if a failure occurs
 		}
 		
 		var plugin = this;	// to avoid confusion related to this
@@ -84,7 +84,7 @@
 		plugin.loadAllPartialViews = function () {
 			// Identify all script tags containing a source url ending in .view
 			// as this is the convention for our partial views expressed in the jQuery template format.
-			var templateScripts = plugin.settings.scripts || $element.find("script[src$='" + plugin.settings.viewExtension + "']");
+			var templateScripts = plugin.settings.scripts || $element.find("script[src*='" + plugin.settings.viewExtension + "']");
 
 			// Create a list of deferred requests - but do not execute them yet
 			templateScripts.each(function () {
@@ -170,7 +170,7 @@
 									log('viewloader.loadSourceForPartialView saving source in '+ deferredLoadRequest.templateID, "debug");
 								}
 
-								// Save the source inside the script tag in the DOM
+							    // Save the source inside the script tag in the DOM
 								var jsSource = jqXHR.responseText;
 								currentScript[0].text = jsSource;
 
@@ -278,7 +278,7 @@
 				return;
 			}
 			
-			if ($.browser.mozilla) {
+			if ($.browser.mozilla || $.browser.chrome || $.browser.webkit ) {
 				switch (level) {
 					case "debug":
 						try { console.debug(message); } catch (ex) { var a = 1; }
