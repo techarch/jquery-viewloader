@@ -14,7 +14,7 @@
   ],
   "main": [
   	"jquery.viewloader.js",
-  	"jquery.viewloader.min.js",
+  	"jquery.viewloader.min.js"
   ],
   "keywords": [
   	"view",
