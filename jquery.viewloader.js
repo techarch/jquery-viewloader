@@ -1,16 +1,33 @@
 /*!
  * jQuery viewloader plugin
  *
- * Version 0.3 (29-November-2011)
+ * Version 0.5 (10-June-2017)
  * @requires jQuery 1.5 and above (for the Deferred support)
  *
- * Copyright (c) 2011 Philippe Monnet (@techarch) 	http://blog.monnet-usa.com
+ * Copyright (c) 2017 Philippe Monnet (@techarch) 	http://blog.monnet-usa.com
  * Source: http://github.com/techarch/jquery-viewloader
  * 
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
  *
+ * Example:
+       $(document).viewloader({
+           versionId: '1.0.0-1',
+           logLevel: "debug",
+    
+           afterEachTemplate: function (templateId) { 
+              // code to execute after each view has been successfully loaded
+           },
+    
+           success: function (successfulResolution) {
+              // Code to execute once all views have been loaded for the page
+           },
+    
+           error: function (failedResolution) {
+              // Code to execute if an error occurs while loading the views     
+    });
+
  */
 
 ;(function($) {
@@ -29,13 +46,14 @@
 	$.viewloader = function (element, options) {
 		
 		// Default options
-		var defaults = {
-			logLevel: "none",						// none / debug / info / warn / error
+	    var defaults = {
+            versionId: '',                    // appended to the querystring to ensure the right cached version is used (skipped if empty)
+			logLevel: "none",		        // none / debug / info / warn / error
 			viewExtension: '.view.html',	// proposed extension
-			scripts: null,							// can be an jQuery array of script items
+			scripts: null,					// can be an jQuery array of script items
 			afterEachTemplate: null,		// optional callback function to invoke after each template has been loaded
-			success: null,							// the "success" callback to invoke once all templates have been loaded
-			error: null								// the "error" callback to invoke if a failure occurs
+			success: null,					// the "success" callback to invoke once all templates have been loaded
+			error: null						// the "error" callback to invoke if a failure occurs
 		}
 		
 		var plugin = this;	// to avoid confusion related to this
@@ -84,7 +102,7 @@
 		plugin.loadAllPartialViews = function () {
 			// Identify all script tags containing a source url ending in .view
 			// as this is the convention for our partial views expressed in the jQuery template format.
-			var templateScripts = plugin.settings.scripts || $element.find("script[src$='" + plugin.settings.viewExtension + "']");
+			var templateScripts = plugin.settings.scripts || $element.find("script[src*='" + plugin.settings.viewExtension + "']");
 
 			// Create a list of deferred requests - but do not execute them yet
 			templateScripts.each(function () {
@@ -97,7 +115,16 @@
 				var domScriptItem = $("script[id=" + templateID + "]");
 				
 				if (domScriptItem.length == 0) {
-					// Add it to the document DOM if it does not already exist
+				    // Add it to the document DOM if it does not already exist
+				    var versionId = plugin.settings.versionId || '';
+				    if (versionId.length > 0) {
+				        // Append a versionId querystring parameter so that we can either 
+				        // use the previously cached template or request a new fresh uncached copy.
+				        // This is important otherwise the new version of a nested template might not be fetched.
+				        templateSrc += '?versionId=' + versionId;
+				        templateScript.attr("src", templateSrc);
+				    }
+
 					addNewTemplateScriptToDOM(templateID, templateSrc);
 				}
 			
@@ -170,7 +197,7 @@
 									log('viewloader.loadSourceForPartialView saving source in '+ deferredLoadRequest.templateID, "debug");
 								}
 
-								// Save the source inside the script tag in the DOM
+							    // Save the source inside the script tag in the DOM
 								var jsSource = jqXHR.responseText;
 								currentScript[0].text = jsSource;
 
@@ -210,6 +237,7 @@
 									
 									// Recursively request dynamic synchronized loading of the nested templates								
 									currentScript.viewloader({
+                                        versionId: currentPlugin.settings.versionId,
 										logLevel: "debug",
 										afterEachTemplate: currentPlugin.settings.afterEachTemplate,
 										scripts: embeddedScriptRefs,
@@ -242,8 +270,8 @@
 		
 		/**
 		* Dynamically creates and insert a new script tag in the DOM for our view template
-		* @param {string} templateID 		The ID of the view template script
-		* @param {string} templateSrc 	The spirce of the view template script
+		* @param {string} templateID 	    The ID of the view template script
+		* @param {string} templateSrc 	    The source of the view template script
 		*/
 		var addNewTemplateScriptToDOM = function (templateID, templateSrc) {
 			var templateScript = "<script id='" + templateID + "'"
@@ -278,7 +306,7 @@
 				return;
 			}
 			
-			if ($.browser.mozilla) {
+			if ($.browser.mozilla || $.browser.chrome || $.browser.webkit ) {
 				switch (level) {
 					case "debug":
 						try { console.debug(message); } catch (ex) { var a = 1; }
